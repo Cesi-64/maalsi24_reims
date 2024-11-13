@@ -1,10 +1,7 @@
 services:
-  reims_bdd:
-    container_name: reims_mariadb
+  master-bdd:
+    container_name: master-bdd
     image: mariadb:latest
-    restart: always
-    ports:
-      - 53000:3306
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
@@ -12,12 +9,25 @@ services:
       MARIADB_DATABASE: maalsi24
       MARIADB_USER: user
       MARIADB_PASSWORD: resu
-    profiles: [local, prod]
-
-  reims_adminer:
-    container_name: reims_adminer
-    image: adminer
+    
+  master-back:
+    container_name: master-back
+    image: senseo/masterbus:back
     restart: always
+    depends_on: 
+      - master-bdd
     ports:
-      - 8080:8080
-    profiles: [local]
+      - 52000:52000
+    environment:
+      BDD_HOST: master-bdd
+      BDD_PORT: 3306
+
+  master-adminer:
+    container_name: master-adminer
+    image: adminer
+    ports:
+      - 8081:8080
+
+  master-front:
+    container_name: master-front
+    image: senseo/masterbus:front
