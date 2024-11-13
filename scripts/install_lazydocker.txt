@@ -22,5 +22,6 @@ Fermer et sauvegarder avec nano
 Resourcer le shell
 # source .bashrc
 
+
 Installer lazydocker
 # go install github.com/jesseduffield/lazydocker@latest
