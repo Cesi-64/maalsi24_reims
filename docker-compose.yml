@@ -31,3 +31,5 @@ services:
   master-front:
     container_name: master-front
     image: senseo/masterbus:front
+    ports:
+      - 8080:80
