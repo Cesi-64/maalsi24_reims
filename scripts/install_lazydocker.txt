@@ -1,0 +1,26 @@
+Copier coller les lignes suivantes
+
+# wget https://go.dev/dl/go1.19.4.linux-amd64.tar.gz
+# sudo tar -zxvf go1.19.4.linux-amd64.tar.gz
+# sudo mv go /usr/local/
+
+Editer le shell pour indiqué le chemin des dossiers de fonctionnement
+
+# nano .bashrc
+
+Copier coller les lignes suivantes en fin de fichier
+
+export GOROOT=/usr/local/go
+export GOPATH=$HOME/go
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+
+Fermer et sauvegarder avec nano
+1 - Ctrl+x
+2 - Y
+3 - Entrée
+
+Resourcer le shell
+# source .bashrc
+
+Installer lazydocker
+# go install github.com/jesseduffield/lazydocker@latest
