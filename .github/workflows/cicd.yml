@@ -1,0 +1,111 @@
+name: Continious Integration
+
+on:
+    push:
+        branches: ["main"]
+
+jobs:
+    hello:
+      if: ${{ !contains(github.event.head_commit.message, '#code') }}
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Node Comment
+          uses: actions/setup-node@v3
+          with:
+            node-version: 20.x
+        - name: Run Blague
+          run: echo Blague     
+    
+    build-back-image:
+      runs-on: ubuntu-latest
+      defaults:
+        run:
+          working-directory: back
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        
+        - name: Docker Login
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKERHUB_LOGIN }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+        - name: Build and push back
+          uses: docker/build-push-action@v4
+          with:
+            context: .
+            push: true
+            tags: ${{ secrets.DOCKERHUB_LOGIN }}/masterbus:back
+
+    build-front-image:
+      runs-on: ubuntu-latest
+      defaults:
+        run:
+          working-directory: front
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+        
+        - name: Docker Login
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKERHUB_LOGIN }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+        - name: Build and push front
+          uses: docker/build-push-action@v4
+          with:
+            context: .
+            push: true
+            tags: ${{ secrets.DOCKERHUB_LOGIN }}/masterbus:front
+
+    compose-server:
+      needs: [build-back-image, build-front-image]
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: Compose file send
+          uses: appleboy/scp-action@v0.1.7
+          with:
+            host: ${{ secrets.PROD_HOST }}
+            port: ${{ secrets.PROD_PORT }}
+            username: ${{ secrets.PROD_USERNAME }}
+            password: ${{ secrets.PROD_PASSWORD }}
+
+            source: "./docker-compose.yml"
+            target: "."
+
+    deploy-server:
+      needs: [compose-server]
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: Server update
+          uses: appleboy/ssh-action@v1.0.3
+          with:
+            host: ${{ secrets.PROD_HOST }}
+            port: ${{ secrets.PROD_PORT }}
+            username: ${{ secrets.PROD_USERNAME }}
+            password: ${{ secrets.PROD_PASSWORD }}
+            
+            script: |
+              docker pull senseo/masterbus:back
+              docker pull senseo/masterbus:front
+              docker-compose up -d
+
+      
+
+
+

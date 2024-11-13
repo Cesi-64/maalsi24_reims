@@ -1,0 +1,9 @@
+services:
+  web:
+    container_name: bus-event
+    image: nginx:alpine
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+      - ./nginx:/etc/nginx/conf.d:ro
+    ports:
+      - 8889:80
