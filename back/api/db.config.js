@@ -16,6 +16,6 @@ db.sequelize = sequelize
 db.User = require('./models/user_m')(sequelize)
 
 /*** SYNCHRO */
-// db.sequelize.sync({alter: true})
+db.sequelize.sync({alter: true})
 
 module.exports = db
